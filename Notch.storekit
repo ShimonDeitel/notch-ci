@@ -1,0 +1,29 @@
+{
+  "identifier" : "notch",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayPrice" : "2.99",
+      "familyShareable" : false,
+      "internalID" : "notch_pro_unlock",
+      "localizations" : [
+        {
+          "description" : "Unlocks tracking unlimited children",
+          "displayName" : "Notch Pro",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "notch_pro_unlock",
+      "referenceName" : "Notch Pro Unlock",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_askToBuyEnabled" : false
+  },
+  "subscriptionGroups" : [],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}
