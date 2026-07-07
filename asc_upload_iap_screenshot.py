@@ -49,7 +49,7 @@ def req(method, path, token, body=None):
 def main():
     token = make_jwt()
 
-    status, iap = req("GET", f"/inAppPurchases/{IAP_ID}", token)
+    status, iap = req("GET", f"https://api.appstoreconnect.apple.com/v2/inAppPurchases/{IAP_ID}", token)
     state = iap.get("data", {}).get("attributes", {}).get("state")
 
     # An IAP review screenshot may already exist from a prior successful run even
@@ -58,7 +58,7 @@ def main():
     # relationship for an existing screenshot and skip if one is already there —
     # otherwise the POST below 409s with ENTITY_ERROR.MEDIA_ASSET_CREATION_NOT_ALLOWED.
     status, existing = req(
-        "GET", f"/inAppPurchases/{IAP_ID}/appStoreReviewScreenshot", token
+        "GET", f"https://api.appstoreconnect.apple.com/v2/inAppPurchases/{IAP_ID}/appStoreReviewScreenshot", token
     )
     if existing.get("data"):
         existing_id = existing["data"]["id"]
