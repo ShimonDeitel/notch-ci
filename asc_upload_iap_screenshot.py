@@ -49,6 +49,12 @@ def req(method, path, token, body=None):
 def main():
     token = make_jwt()
 
+    status, iap = req("GET", f"/inAppPurchases/{IAP_ID}", token)
+    state = iap.get("data", {}).get("attributes", {}).get("state")
+    if state != "MISSING_METADATA":
+        print(f"IAP state is {state}, not MISSING_METADATA — screenshot already uploaded, skipping.")
+        return
+
     with open(SCREENSHOT_PATH, "rb") as f:
         content = f.read()
     file_size = len(content)
