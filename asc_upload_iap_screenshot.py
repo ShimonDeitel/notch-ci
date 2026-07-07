@@ -51,6 +51,22 @@ def main():
 
     status, iap = req("GET", f"/inAppPurchases/{IAP_ID}", token)
     state = iap.get("data", {}).get("attributes", {}).get("state")
+
+    # An IAP review screenshot may already exist from a prior successful run even
+    # while the IAP's overall `state` hasn't flipped away from MISSING_METADATA
+    # (e.g. other required metadata is still pending). Check the actual
+    # relationship for an existing screenshot and skip if one is already there —
+    # otherwise the POST below 409s with ENTITY_ERROR.MEDIA_ASSET_CREATION_NOT_ALLOWED.
+    status, existing = req(
+        "GET", f"/inAppPurchases/{IAP_ID}/appStoreReviewScreenshot", token
+    )
+    if existing.get("data"):
+        existing_id = existing["data"]["id"]
+        print(f"IAP already has review screenshot {existing_id} — skipping upload.")
+        print("IAP_SCREENSHOT_UPLOAD_COMPLETE")
+        print(f"IAP_SCREENSHOT_ID={existing_id}")
+        return
+
     if state != "MISSING_METADATA":
         print(f"IAP state is {state}, not MISSING_METADATA — screenshot already uploaded, skipping.")
         return
@@ -67,7 +83,14 @@ def main():
             "relationships": {"inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": IAP_ID}}},
         }
     }
-    status, reservation = req("POST", "/inAppPurchaseAppStoreReviewScreenshots", token, body)
+    try:
+        status, reservation = req("POST", "/inAppPurchaseAppStoreReviewScreenshots", token, body)
+    except urllib.error.HTTPError as e:
+        if e.code == 409:
+            print("Screenshot already exists (409) — treating as already uploaded.")
+            print("IAP_SCREENSHOT_UPLOAD_COMPLETE")
+            return
+        raise
     print("reservation", status)
     ss_id = reservation["data"]["id"]
     upload_ops = reservation["data"]["attributes"]["uploadOperations"]
